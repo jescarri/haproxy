@@ -1,0 +1,46 @@
+global
+    log 127.0.0.1    local0
+    log 127.0.0.1    local1 notice
+    stats socket /tmp/admin.sock mode 660 level admin
+    # stats timeout 30s
+    user root
+    group root
+    # daemon
+
+    # Default SSL material locations
+    #ca-base /etc/ssl/certs
+    #crt-base /etc/ssl/private
+
+    # Default ciphers to use on SSL-enabled listening sockets.
+    # For more information, see ciphers(1SSL).
+    #ssl-default-bind-ciphers kEECDH+aRSA+AES:kRSA+AES:+AES256:RC4-SHA:!kEDH:!LOW:!EXP:!MD5:!aNULL:!eNULL
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    retries 3
+    option redispatch
+    option http-server-close
+    timeout http-keep-alive 3000
+    timeout connect 1000
+    timeout client  50000
+    timeout server  50000
+
+resolvers docker
+    nameserver dnsmasq 127.0.0.1:53
+
+frontend rundeck-fe
+    bind *:80
+    mode http
+    default_backend rundeck-be
+
+backend rundeck-be
+    mode http
+    balance roundrobin
+    option forwardfor
+    http-request set-header X-Forwarded-Port %[dst_port]
+    http-request add-header X-Forwarded-Proto https if { ssl_fc }
+    cookie SRVNAME insert
+    option httpchk HEAD / HTTP/1.1\r\nHost:localhost
