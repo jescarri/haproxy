@@ -15,7 +15,7 @@ if [ "${HAPROXY_SSL_ENABLE}" = true ]; then
    CFG_TEMPLATE=/usr/local/etc/haproxy-ssl.cfg.template
    if [ -e "/ssl/${HAPROXY_VIP_FQDN}/certs.pem" ]; then
      mkdir -p /etc/ssl/private
-     mv "/ssl/${HAPROXY_VIP_FQDN}/certs.pem" /etc/ssl/private/cert.pem 
+     cp "/ssl/${HAPROXY_VIP_FQDN}/certs.pem" /etc/ssl/private/cert.pem 
    else
      echo "SSL certificate /ssl/${HAPROXY_VIP_FQDN}/certs.pem wasn't found"
      exit 1
@@ -41,4 +41,5 @@ for host in $HAPROXY_BACKENDS; do
 done
 
 # call the entry point script of the source image
+cat /usr/local/etc/haproxy.cfg
 exec /docker-entrypoint.sh haproxy -f /usr/local/etc/haproxy.cfg "$@"
