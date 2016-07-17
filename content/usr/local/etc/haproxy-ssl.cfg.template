@@ -29,18 +29,18 @@ defaults
 resolvers docker
     nameserver dnsmasq 127.0.0.1:53
 
-frontend rundeck-fe
+frontend fe
     bind *:80
     bind *:443 ssl crt /etc/ssl/private/cert.pem
     ##ENABLE_HTTP_HTTPS_REDIR
     mode http
-    default_backend rundeck-be
+    default_backend be
 
-backend rundeck-be
+backend be
     mode http
     balance roundrobin
     option forwardfor
     http-request set-header X-Forwarded-Port %[dst_port]
     http-request add-header X-Forwarded-Proto https if { ssl_fc }
     cookie SRVNAME insert
-    option httpchk HEAD / HTTP/1.1\r\nHost:localhost
+#    option httpchk HEAD / HTTP/1.1\r\n
